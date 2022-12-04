@@ -55,12 +55,11 @@ fn time<T>(func: &dyn Fn() -> T) -> (Duration, T) {
 #[macro_export]
 macro_rules! main {
     (
-        year: $year: expr,
         implemented_days: [$($day:ident),+ $(,)?]
     ) => {
         // Inputs need to be in this format to work with `cargo aoc input`.
         const DAYS: &[&str] = &[$(stringify!($day)),*];
-        const INPUTS : &[&str] = &[$(include_str!(concat!("../input/", stringify!($year), "/", stringify!($day), ".txt"))),*];
+        const INPUTS : &[&str] = &[$(include_str!(concat!("../input/", stringify!($day), ".txt"))),*];
 
         fn main() {
             let args: Args = argh::from_env();
@@ -105,10 +104,10 @@ macro_rules! main {
 }
 
 main! {
-    year: 2022,
     implemented_days: [
         day1,
         day2,
         day3,
+        day4,
     ]
 }
