@@ -11,9 +11,8 @@ fn total_group_badge_priority(sacks: &Vec<Vec<char>>) -> u32 {
     panic!("Total sacks {} not a multiple of 3", sacks.len());
   }
   let mut s: u32 = 0;
-  for i in 0..(sacks.len() / 3) {
-    let j = i * 3;
-    s += overlap_char(&[&sacks[j], &sacks[j + 1], &sacks[j + 2]]) + 1;
+  for c in sacks.chunks(3) {
+    s += overlap_elems(c) + 1;
   }
   s
 }
@@ -33,16 +32,26 @@ pub fn generator(input: &str) -> Vec<Vec<char>> {
 }
 
 fn overlap_middle(fills: &Vec<char>) -> u32 {
-  let (f, l) = fills.split_at(fills.len() / 2);
-  overlap_char(&[f, l])
+  let mut presence: u64 = 0;
+  let middle = fills.len()/2;
+  for c in &fills[0..middle] {
+    presence |= 1 <<char_idx(c);
+  }
+  for c in &fills[middle..] {
+    let curr = char_idx(c);
+    if (presence & (1 << curr)) != 0 {
+      return curr;
+    }
+  }
+  panic!("Unexpected, no overlap found for {:?}", fills);
 }
 
-fn overlap_char(elems: &[&[char]]) -> u32 {
+fn overlap_elems(elems: &[Vec<char>]) -> u32 {
   let mut prev: u64 = u64::MAX;
-  for &elem in elems {
+  for elem in elems {
     let mut presence: u64 = 0;
     for c in elem {
-      let cidx = char_idx(c);
+      let cidx = char_idx(&c);
       if (prev & (1 << cidx)) != 0 {
         presence |= 1 << cidx;
       }
@@ -52,13 +61,8 @@ fn overlap_char(elems: &[&[char]]) -> u32 {
   if prev == 0 {
     return 0;
   } else {
-    for s in 0..52 {
-      if prev == 1 << s {
-        return s;
-      }
-    }
+    return prev.trailing_zeros();
   }
-  panic!("Unexpected overlap {} for {:?}", prev, elems);
 }
 
 fn char_idx(c: &char) -> u32 {
