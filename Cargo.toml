@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 argh = "0.1"
 colored = "2"
+regex = "1"
 
 [dev-dependencies]
 criterion = "0.3"
