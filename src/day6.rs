@@ -20,10 +20,10 @@ fn find_marker(msg: &Vec<char>, size: usize) -> usize {
   panic!("Unexpected, a marker was not found in {:?}", msg);
 }
 
-fn find_marker_contains(msg: &Vec<char>, size: usize) -> usize {
+fn _find_marker_contains(msg: &Vec<char>, size: usize) -> usize {
   let mut i = 0;
   for s in msg.windows(size) {
-    if no_duplicates(s, size) {
+    if _no_duplicates(s, size) {
       return i + size;
     }
     i += 1;
@@ -31,7 +31,7 @@ fn find_marker_contains(msg: &Vec<char>, size: usize) -> usize {
   panic!("Unexpected, a marker was not found in {:?}", msg);
 }
 
-fn no_duplicates(chars: &[char], size: usize) -> bool {
+fn _no_duplicates(chars: &[char], size: usize) -> bool {
   for i in 0..(size - 1) {
     if chars[(i + 1)..].contains(&chars[i]) { return false; }
   }
