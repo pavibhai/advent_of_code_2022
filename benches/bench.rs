@@ -1,8 +1,7 @@
-use criterion::{criterion_group, criterion_main};
+use criterion::{criterion_group, criterion_main, Criterion};
 
 macro_rules! benchmarks {
     (
-        year: $year:expr,
         bench_day: $day:ident
     ) => {
         // Inputs need to be in this format to work with `cargo aoc input`.
