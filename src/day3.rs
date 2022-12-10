@@ -58,10 +58,10 @@ fn overlap_elems(elems: &[Vec<char>]) -> u32 {
     }
     prev = presence
   }
-  if prev == 0 {
-    return 0;
+  return if prev == 0 {
+    0
   } else {
-    return prev.trailing_zeros();
+    prev.trailing_zeros()
   }
 }
 
