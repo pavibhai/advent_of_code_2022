@@ -64,24 +64,20 @@ fn compute_scenic_score(trees: &Vec<Vec<i8>>) -> Vec<Vec<u32>> {
       r = i;
       c = j;
       // left -> right
-      scenic_score[r][c] = scenic_score[r][c] *
-        (j as u32 - m_lr[trees[r][c] as usize..].iter().max().unwrap());
-      m_lr[trees[r][c] as usize] = j as u32;
+      scenic_score[r][c] = scenic_score[r][c] * (j as u32 - m_lr[trees[r][c] as usize]);
+      m_lr[..=trees[r][c] as usize].fill(j as u32);
       // up -> down
-      scenic_score[c][r] = scenic_score[c][r] *
-        (j as u32 - m_ud[trees[c][r] as usize..].iter().max().unwrap());
-      m_ud[trees[c][r] as usize] = j as u32;
+      scenic_score[c][r] = scenic_score[c][r] * (j as u32 - m_ud[trees[c][r] as usize]);
+      m_ud[..=trees[c][r] as usize].fill(j as u32);
 
       r = size - 1 - i;
       c = size - 1 - j;
       // right -> left
-      scenic_score[r][c] = scenic_score[r][c] *
-        (j as u32 - m_rl[trees[r][c] as usize..].iter().max().unwrap());
-      m_rl[trees[r][c] as usize] = j as u32;
+      scenic_score[r][c] = scenic_score[r][c] * (j as u32 - m_rl[trees[r][c] as usize]);
+      m_rl[..=trees[r][c] as usize].fill(j as u32);
       // down -> up
-      scenic_score[c][r] = scenic_score[c][r] *
-        (j as u32 - m_du[trees[c][r] as usize..].iter().max().unwrap());
-      m_du[trees[c][r] as usize] = j as u32;
+      scenic_score[c][r] = scenic_score[c][r] * (j as u32 - m_du[trees[c][r] as usize]);
+      m_du[..=trees[c][r] as usize].fill(j as u32);
     }
   }
   scenic_score
