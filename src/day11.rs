@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use regex::Regex;
 use crate::day11::Operation::{ADD, MUL, POW};
@@ -117,9 +118,9 @@ impl Monkey {
   fn inspect_mods(&mut self, divisors: &Vec<u64>) -> Vec<(usize, Vec<u64>)> {
     let mut result: Vec<(usize, Vec<u64>)> = Vec::new();
     for mut mod_item in self.mod_items.drain(..) {
-      mod_item.iter_mut().enumerate().for_each(|(i, w)| {
-        *w = self.op.bin_op(*w) % divisors[i];
-      });
+      for i in 0..divisors.len() {
+        *mod_item[i].borrow_mut() = self.op.bin_op(mod_item[i]) % divisors[i];
+      }
       match mod_item[self.id] {
         0 => result.push((self.true_to, mod_item)),
         _ => result.push((self.false_to, mod_item)),
@@ -150,7 +151,7 @@ pub fn part2(monkeys: &Vec<RefCell<Monkey>>) -> u64 {
   monkeys.iter().for_each(|m| m.borrow_mut().initialize_mods(&divisors));
   for _ in 0..10000 {
     for monkey in monkeys.iter() {
-      for (to, worry) in monkey.borrow_mut().inspect_mods(&divisors) {
+      for (to, worry) in monkey.borrow_mut().inspect_mods(&divisors).drain(..) {
         monkeys[to].borrow_mut().add_mod_item(worry);
       }
     }
