@@ -5,7 +5,7 @@ pub fn generator(input: &str) -> ElevationMap {
 }
 
 pub struct ElevationMap {
-  map: Vec<Vec<char>>,
+  map: Vec<Vec<u32>>,
   start: (usize, usize),
   end: (usize, usize),
   width: usize,
@@ -26,13 +26,13 @@ impl ElevationMap {
         match c {
           'S' => {
             start = Some((x, y));
-            chars.push('a');
+            chars.push('a' as u32);
           }
           'E' => {
             end = Some((x, y));
-            chars.push('z');
+            chars.push('z' as u32);
           }
-          _ => chars.push(c)
+          _ => chars.push(c as u32)
         }
         x += 1;
       }
@@ -51,22 +51,37 @@ impl ElevationMap {
   }
 
   fn compute_steps(&self, best: bool) -> u32 {
+    let neighbors: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
     let mut min_steps: Vec<Vec<u32>> = vec![vec![u32::MAX; self.map.first().unwrap().len()]; self.map.len()];
     let mut to_check: Vec<(usize, usize)> = Vec::new();
     *min_steps[self.end.1][self.end.0].borrow_mut() = 0;
     to_check.push(self.end);
     let mut best_start_steps = u32::MAX;
+    let start_code = self.map[self.start.1][self.start.0];
     while !to_check.is_empty() {
       let (c_x, c_y) = to_check.pop().unwrap();
       let min_elevation = self.map[c_y][c_x] as u32 - 1;
       let next_steps = min_steps[c_y][c_x] + 1;
-      for (n_x, n_y) in self.neighbors(c_x, c_y) {
-        if (self.map[n_y][n_x] as u32) < min_elevation || min_steps[n_y][n_x] <= next_steps {
+      if next_steps > best_start_steps {
+        continue;
+      }
+      for (dx, dy) in neighbors {
+        let n_x = c_x as isize + dx;
+        let n_y = c_y as isize + dy;
+        if n_x < 0
+          || n_x >= self.width as isize
+          || n_y < 0
+          || n_y >= self.height as isize {
           continue;
         }
-        *min_steps[n_y][n_x].borrow_mut() = next_steps;
-        to_check.push((n_x, n_y));
-        if self.map[n_y][n_x] == 'a' {
+        if (self.map[n_y as usize][n_x as usize] as u32) < min_elevation
+          || min_steps[n_y as usize][n_x as usize] <= next_steps {
+          continue;
+        }
+        *min_steps[n_y as usize][n_x as usize].borrow_mut() = next_steps;
+        to_check.push((n_x as usize, n_y as usize));
+        if (n_y as usize == self.start.1 && n_x as usize == self.start.0)
+          || (best && self.map[n_y as usize][n_x as usize] == start_code) {
           best_start_steps = best_start_steps.min(next_steps);
         }
       }
@@ -77,27 +92,6 @@ impl ElevationMap {
     } else {
       min_steps[self.start.1][self.start.0]
     }
-  }
-
-  fn neighbors(&self, x: usize, y: usize) -> Vec<(usize, usize)> {
-    let mut result = Vec::new();
-    // left
-    if x > 0 {
-      result.push((x - 1, y));
-    }
-    // right
-    if x + 1 < self.width {
-      result.push((x + 1, y));
-    }
-    // up
-    if y > 0 {
-      result.push((x, y - 1));
-    }
-    // down
-    if y + 1 < self.height {
-      result.push((x, y + 1));
-    }
-    result
   }
 }
 
@@ -130,14 +124,6 @@ mod tests {
     assert_eq!((5, 2), elev_map.end);
     assert_eq!(5, elev_map.map.len());
     assert_eq!(8, elev_map.map.first().unwrap().len());
-  }
-
-  #[test]
-  fn test_neighbors() {
-    let elev_map = generator(input().as_str());
-    assert_eq!(vec![(4, 2), (6, 2), (5, 1), (5, 3)], elev_map.neighbors(5, 2));
-    assert_eq!(vec![(0, 0), (2, 0), (1, 1)], elev_map.neighbors(1, 0));
-    assert_eq!(vec![(1, 0), (0, 1)], elev_map.neighbors(0, 0));
   }
 
   #[test]
