@@ -1,4 +1,5 @@
 use std::borrow::BorrowMut;
+use std::collections::VecDeque;
 
 pub fn generator(input: &str) -> ElevationMap {
   ElevationMap::new(input)
@@ -6,8 +7,8 @@ pub fn generator(input: &str) -> ElevationMap {
 
 pub struct ElevationMap {
   map: Vec<Vec<u32>>,
-  start: (usize, usize),
-  end: (usize, usize),
+  start: Position,
+  end: Position,
   width: usize,
   height: usize,
 }
@@ -25,11 +26,11 @@ impl ElevationMap {
       for c in line.chars() {
         match c {
           'S' => {
-            start = Some((x, y));
+            start = Some(Position { x, y });
             chars.push('a' as u32);
           }
           'E' => {
-            end = Some((x, y));
+            end = Some(Position { x, y });
             chars.push('z' as u32);
           }
           _ => chars.push(c as u32)
@@ -53,45 +54,42 @@ impl ElevationMap {
   fn compute_steps(&self, best: bool) -> u32 {
     let neighbors: [(isize, isize); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
     let mut min_steps: Vec<Vec<u32>> = vec![vec![u32::MAX; self.map.first().unwrap().len()]; self.map.len()];
-    let mut to_check: Vec<(usize, usize)> = Vec::new();
-    *min_steps[self.end.1][self.end.0].borrow_mut() = 0;
-    to_check.push(self.end);
+    let mut to_check: VecDeque<Position> = VecDeque::new();
+    *min_steps[self.end.y][self.end.x].borrow_mut() = 0;
+    to_check.push_back(self.end.clone());
     let mut best_start_steps = u32::MAX;
-    let start_code = self.map[self.start.1][self.start.0];
+    let start_code = self.map[self.start.y][self.start.x];
     while !to_check.is_empty() {
-      let (c_x, c_y) = to_check.pop().unwrap();
-      let min_elevation = self.map[c_y][c_x] as u32 - 1;
-      let next_steps = min_steps[c_y][c_x] + 1;
+      let curr = to_check.pop_front().unwrap();
+      let min_elevation = self.map[curr.y][curr.x] as u32 - 1;
+      let next_steps = min_steps[curr.y][curr.x] + 1;
       if next_steps > best_start_steps {
-        continue;
+        break;
       }
       for (dx, dy) in neighbors {
-        let n_x = c_x as isize + dx;
-        let n_y = c_y as isize + dy;
+        let n_x = curr.x as isize + dx;
+        let n_y = curr.y as isize + dy;
         if n_x < 0
           || n_x >= self.width as isize
           || n_y < 0
           || n_y >= self.height as isize {
           continue;
         }
-        if (self.map[n_y as usize][n_x as usize] as u32) < min_elevation
-          || min_steps[n_y as usize][n_x as usize] <= next_steps {
+        let next_pos = Position { x: n_x as usize, y: n_y as usize };
+        if (self.map[next_pos.y][next_pos.x] as u32) < min_elevation
+          || min_steps[next_pos.y][next_pos.x] <= next_steps {
           continue;
         }
         *min_steps[n_y as usize][n_x as usize].borrow_mut() = next_steps;
-        to_check.push((n_x as usize, n_y as usize));
-        if (n_y as usize == self.start.1 && n_x as usize == self.start.0)
+        to_check.push_back(next_pos);
+        if (n_y as usize == self.start.y && n_x as usize == self.start.x)
           || (best && self.map[n_y as usize][n_x as usize] == start_code) {
           best_start_steps = best_start_steps.min(next_steps);
         }
       }
     }
 
-    if best {
-      best_start_steps
-    } else {
-      min_steps[self.start.1][self.start.0]
-    }
+    best_start_steps
   }
 }
 
@@ -103,9 +101,15 @@ pub fn part2(elev_map: &ElevationMap) -> u32 {
   elev_map.compute_steps(true)
 }
 
+#[derive(Clone, Eq, PartialEq, Debug)]
+struct Position {
+  x: usize,
+  y: usize,
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::day12::{generator, part1, part2};
+  use crate::day12::{generator, part1, part2, Position};
 
   fn input() -> String {
     vec![
@@ -120,8 +124,8 @@ mod tests {
   #[test]
   fn test_generator() {
     let elev_map = generator(input().as_str());
-    assert_eq!((0, 0), elev_map.start);
-    assert_eq!((5, 2), elev_map.end);
+    assert_eq!(Position { x: 0, y: 0 }, elev_map.start);
+    assert_eq!(Position { x: 5, y: 2 }, elev_map.end);
     assert_eq!(5, elev_map.map.len());
     assert_eq!(8, elev_map.map.first().unwrap().len());
   }
