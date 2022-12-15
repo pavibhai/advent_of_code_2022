@@ -162,10 +162,10 @@ pub fn part2(cave: &Cave) -> u32 {
         || (x + x_adjust) < 0
         || (x + x_adjust) >= cave.width
         || &cave.map[y as usize][(x + x_adjust) as usize] == &AIR;
-      let left_diag_sand = (x - 1) >= 0 && &map[(y - 1) as usize][(x - 1) as usize] == &SAND;
-      let right_diag_sand = (x + 1) < width && &map[(y - 1) as usize][(x + 1) as usize] == &SAND;
-      if cave_pos_air &&
-        (&map[(y - 1) as usize][x as usize] == &SAND || left_diag_sand || right_diag_sand) {
+      if cave_pos_air
+        && (&map[(y - 1) as usize][x as usize] == &SAND
+          || (x - 1) >= 0 && &map[(y - 1) as usize][(x - 1) as usize] == &SAND
+          || (x + 1) < width && &map[(y - 1) as usize][(x + 1) as usize] == &SAND) {
         map[y as usize][x as usize] = SAND;
         times += 1
       }
