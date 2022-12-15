@@ -2,6 +2,7 @@
   * [Mod Arithmetic](#ModArithmetic)
     * [Addition](#Addition)
     * [Multiplication](#Multiplication)
+    * [Division](#Division)
 
 # 2022 <a id="2022"></a>
 
@@ -31,27 +32,19 @@ Consider `(x * a) % d` where we want to multiply `a` and perform the mod
 * substituting `x` we have `((q*d + r) * a) % d` i.e `((q*d*a) + (r * a) % d`
 * `q*d*a` is always divisible by d so can be removed resulting in `(r * a) % d`
 
-### Division
+### Division <a id="Division"></a>
 
 Consider `(x / t) % d` where we want to divide `a` and perform the mod
 
-* `x / 3` is written as ((x - x % t) / t)
+* `x / 3` is written as ((x - x % 3) / t)
 
 3 % 5 = 3
 3 / 3 % 5 = 1
 4 % 5 / 3 = 4 / 3
 4 / 3 % 5 = 1
 
-(1 / 3) % 5 = 0 % 5 = 0 = 1 % 5 / 3
-(2 / 3) % 5 = 0 % 5 = 0 = 2 % 5 / 3
-(3 / 3) % 5 = 1 % 5 = 1 = 3 % 5 / 3
-(4 / 3) % 5 = 1 % 5 = 1 = 4 % 5 / 3
-(5 / 3) % 5 = 1 % 5 = 1 = 5 % 5 / 3
-(6 / 3) % 5 = 2 % 5 = 2
-(7 / 3) % 5 = 2 % 5 = 2
-(8 / 3) % 5 = 2 % 5 = 2
-(9 / 3) % 5 = 3 % 5 = 3
-(10 / 3) % 5 = 3 % 5 = 3
-(11 / 3) % 5 = 3 % 5 = 3
-(12 / 3) % 5 = 4 % 5 = 4
-(13 / 3) % 5 = 4 % 5 = 4
+| Number | % 3 | % 5 | %5 - %3 | Number / 3 % 5 |
+|--------|-----|-----|---------|----------------|
+| 1      | 1   | 1   | 0       | 0              |
+| 2      | 2   | 2   | 0       | 0              |
+| 3      | 0   | 3   | 3       | 1              |
