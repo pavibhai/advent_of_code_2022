@@ -48,3 +48,9 @@ Consider `(x / t) % d` where we want to divide `a` and perform the mod
 | 1      | 1   | 1   | 0       | 0              |
 | 2      | 2   | 2   | 0       | 0              |
 | 3      | 0   | 3   | 3       | 1              |
+
+## Lines
+Given two lines 
+(x11, y11) (x12, y12)
+(x21, y21) (x22, y22)
+
