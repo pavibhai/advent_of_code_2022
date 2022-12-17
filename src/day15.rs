@@ -26,7 +26,7 @@ pub fn part1(sensors: &Vec<Sensor>) -> u64 {
 fn no_beacons(sensors: &Vec<Sensor>, y: i32) -> u64 {
   let mut no_beacons: Vec<(i32, i32)> = Vec::new();
   for sensor in sensors {
-    sensor.no_beacons(y, &mut no_beacons);
+    sensor.no_beacons_along_y(y, &mut no_beacons);
   }
   no_beacons.sort_by_key(|x| x.0);
   let mut count = 0;
@@ -100,7 +100,7 @@ fn find_missing_beacon(sensors: &Vec<Sensor>, min: i32, max: i32) -> (i32, i32) 
     }
   }
 
-  //TODO Scan the edges
+  //TODO Handle beacon on the edge
 
   panic!("Did not find missing beacon");
 }
@@ -142,34 +142,7 @@ impl Sensor {
     }
   }
 
-  fn range(&self, y: i32, min: i32, max: i32, strengths: &mut Vec<(i32, i32, u32)>) {
-    let y_diff = y.abs_diff(self.position.y);
-    let delta_distance = self.range as i32 - y_diff as i32;
-    if delta_distance < 0 {
-      return;
-    }
-    let mut x_min = self.position.x - delta_distance;
-    let mut x_max = self.position.x + delta_distance;
-    let mut depth = if y < self.position.y {
-      y_diff * 2
-    } else {
-      self.range - y_diff - (self.position.x - x_min) as u32
-    };
-    let mut min_strength = depth;
-    if x_min < min {
-      min_strength = min_strength.min(depth + (min - x_min) as u32);
-      x_min = min;
-    }
-    if x_max > max {
-      min_strength = min_strength.min(depth + (x_max - max) as u32);
-      x_max = max;
-    }
-    if x_min <= x_max {
-      strengths.push((x_min, x_max, min_strength));
-    }
-  }
-
-  fn no_beacons(&self, y: i32, result: &mut Vec<(i32, i32)>) {
+  fn no_beacons_along_y(&self, y: i32, result: &mut Vec<(i32, i32)>) {
     let delta_distance = self.range as i32 - y.abs_diff(self.position.y) as i32;
     if delta_distance < 0 {
       return;
@@ -321,25 +294,6 @@ mod tests {
 
   #[test]
   fn test_distress_beacon() {
-    let sensor = Sensor::new(8, 7, 2, 10);
-    let mut ranges = Vec::new();
-    sensor.range(7, -1, 20, &mut ranges);
-    assert_eq!(&(-1, 17, 0), ranges.last().unwrap());
-
-    sensor.range(7, 0, 20, &mut ranges);
-    assert_eq!(&(0, 17, 0), ranges.last().unwrap());
-
-    sensor.range(8, 0, 20, &mut ranges);
-    assert_eq!(&(0, 16, 0), ranges.last().unwrap());
-
-    sensor.range(6, 0, 20, &mut ranges);
-    assert_eq!(&(0, 16, 2), ranges.last().unwrap());
-
-    let sensor = Sensor::new(20, 1, 15, 3);
-    assert_eq!(7, sensor.range);
-    sensor.range(6, 0, 20, &mut ranges);
-    assert_eq!(&(18, 20, 0), ranges.last().unwrap());
-
     let sensors = generator(input().as_str());
     assert_eq!((14, 11), find_missing_beacon(&sensors, 0, 20));
   }
