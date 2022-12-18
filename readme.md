@@ -54,3 +54,7 @@ Given two lines
 (x11, y11) (x12, y12)
 (x21, y21) (x22, y22)
 
+## Potential Max
+Max pressure given where we are is:
+* Based on each position, find closest to each open valve
+

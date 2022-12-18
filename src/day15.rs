@@ -52,7 +52,7 @@ pub fn part2(sensors: &Vec<Sensor>) -> u64 {
   (high as u64 * pos.0 as u64) + pos.1 as u64
 }
 
-fn find_missing_beacon(sensors: &Vec<Sensor>, min: i32, max: i32) -> (i32, i32) {
+fn find_missing_beacon(sensors: &Vec<Sensor>, _min: i32, _max: i32) -> (i32, i32) {
   let mut same_pairs: Vec<(Line,Line)> = Vec::new();
   let mut opp_pairs: Vec<(Line,Line)> = Vec::new();
   for x in 0..sensors.len() {
