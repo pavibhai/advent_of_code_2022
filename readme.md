@@ -58,3 +58,109 @@ Given two lines
 Max pressure given where we are is:
 * Based on each position, find closest to each open valve
 
+## Moves
+
+```text
+|....@..|
+|....@..|
+|..@@@..|
+|.......|
+|.......|
+|.......|
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+> 
+|.....@.|
+|.....@.|
+|...@@@.|
+|.......|
+|.......|
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+< 
+|....@..|
+|....@..|
+|..@@@..|
+|.......|
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+< 
+|...@...|
+|...@...|
+|.@@@...|
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+< 
+|.......|
+|..#....|
+|..#....|
+|####...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+|....#..|
+|...###.|
+|....#..|
+|..#....|
+|..#....|
+|####...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|.......|
+|....#..|
+|...###.|
+|..#.#..|
+|..#....|
+|####...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|.......|
+|...#...|
+|..###..|
+|..##...|
+|..#....|
+|####...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+```
+
+Each time to decide if it can fit in we have to do the following:
+* Check if we can move down
+  * Check each overlapping row to see that the `&` is zero i.e. no bits are overlapping
+  * If every overlapping row gives `0` then this is compatible at this position, then it can go down
+* Now check if it can move at this level
+  * Move the rock in the direction
+
+Shapes: 5
+Jets: 40
+Width: 
+
+
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+2, repeat of 3
+10 - 2 = 8
