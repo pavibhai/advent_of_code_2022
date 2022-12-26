@@ -164,3 +164,11 @@ Width:
 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 2, repeat of 3
 10 - 2 = 8
+
+# Spatial arrangement
+
+After the initial scan we will get ranges like:
+
+(x1, y, z) to (x2, y, z)
+(x, y1, z) to (x, y2, z)
+(x, y, z1) to (x, y, z2)
