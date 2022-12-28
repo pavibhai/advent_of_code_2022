@@ -172,3 +172,40 @@ After the initial scan we will get ranges like:
 (x1, y, z) to (x2, y, z)
 (x, y1, z) to (x, y2, z)
 (x, y, z1) to (x, y, z2)
+
+# Geode Robots
+Take for example
+```text
+Blueprint 2:
+  Each ore robot costs 2 ore.
+  Each clay robot costs 3 ore.
+  Each obsidian robot costs 3 ore and 8 clay.
+  Each geode robot costs 3 ore and 12 obsidian.
+```
+
+For ore production:
+* 2 ores to create a new ore robot
+* 3 mins before an ore robot is productive
+* From this point onwards we double the production
+* +3 mins
+  * 2 ore robots, 1 ore
+* +21 mins
+  * 42 + 1 = 43
+
+Each minute you can only build one robot:
+* To get to a geode robot you need the following minimum minutes
+  * 1 min for clay robot
+  * 1 min for obsidian robot
+  * 1 min for geode robot
+
+What are the choices at each turn?
+* Build a robot
+  * Geode
+  * Obsidian
+  * Clay
+  * Ore
+  * Don't build any
+
+let us say we always build the best robot if we can.
+
+Fastest way to a geode collecting robot
