@@ -209,3 +209,16 @@ What are the choices at each turn?
 let us say we always build the best robot if we can.
 
 Fastest way to a geode collecting robot
+
+# Encrypted File
+
+```text
+1, 2, -3, 3, -2, 0, 4
+```
+
+Start|Idx|Final|Idx
+-----|---|-----|----
+1
+2
+-3
+

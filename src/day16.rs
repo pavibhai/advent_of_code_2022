@@ -106,11 +106,11 @@ struct BitMap {
 }
 
 impl BitMap {
-  fn new() -> BitMap {
+  fn _new() -> BitMap {
     BitMap { map: 0 }
   }
 
-  fn set(&mut self, idx: u32) {
+  fn _set(&mut self, idx: u32) {
     if idx < u64::BITS {
       self.map |= 1 << idx;
     } else {
@@ -350,16 +350,16 @@ mod tests {
 
   #[test]
   fn test_bitmap() {
-    let mut bitmap = BitMap::new();
+    let mut bitmap = BitMap::_new();
     assert_eq!(false, bitmap.is_set(0));
-    bitmap.set(0);
+    bitmap._set(0);
     assert_eq!(true, bitmap.is_set(0));
     assert_eq!(false, bitmap.is_set(5));
-    bitmap.set(5);
+    bitmap._set(5);
     assert_eq!(true, bitmap.is_set(5));
     assert_eq!(false, bitmap.is_set(3));
     assert_eq!(false, bitmap.is_set(15));
-    bitmap.set(15);
+    bitmap._set(15);
     assert_eq!(true, bitmap.is_set(15));
   }
 
