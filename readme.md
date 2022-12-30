@@ -216,9 +216,9 @@ Fastest way to a geode collecting robot
 1, 2, -3, 3, -2, 0, 4
 ```
 
-Start|Idx|Final|Idx
------|---|-----|----
+# Full Binary Tree
 1
 2
--3
+4
+8
 
