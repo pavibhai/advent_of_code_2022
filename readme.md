@@ -222,3 +222,106 @@ Fastest way to a geode collecting robot
 4
 8
 
+# Layout
+```text
+up
+(0, -1)
+
+left
+(-1, 0)
+
+down
+(0, 1)
+
+right
+(1, 0)
+```
+
+Cube folding
+
+R1|R2
+In this transition
+
+The cube layout can be like
+
+```text
+      R1
+      --
+R4|R3|R2
+      --
+      R6|R5
+```
+
+To identify adjacent regions do the following:
+* If adjacent then it is adjacent
+R1 d R2 d
+R2 d R6 d, R2 u R1 u, R2 l R3 l
+R3 r R2 r, R3 l R4 l
+R4 r R3 r
+R5 l R6 l
+R6 r R5 r, R6 u R2 u
+
+* Look at single connection of connection
+  * If connecting down, ignore down connection, connect left and right
+R1 d R2 d, R1 l R3 d,
+R2 d R6 d, R2 u R1 u, R2 l R3 l, R2 r R5 d
+R3 r R2 r, R3 l R4 l, R3 u R1 r, R3 d R6 r
+R4 r R3 r
+R5 l R6 l, R5 u R2 l
+R6 r R5 r, R6 l R3 u, R6 u R2 u
+
+* Look at double connection of connection
+R1 d R2 d, R1 l R3 d, R1 r R5 l, R1 u R4 d
+R2 d R6 d, R2 u R1 u, R2 l R3 l, R2 r R5 d
+R3 r R2 r, R3 l R4 l, R3 u R1 r, R3 d R6 r
+R4 r R3 r, R4 u R1 d, R4 d R6 u
+R5 l R6 l, R5 u R2 l, R5 r R1 l
+R6 r R5 r, R6 l R3 u, R6 u R2 u, R6 d R4 u
+
+* Look at only remaining connection
+R1 d R2 d, R1 l R3 d, R1 r R5 l, R1 u R4 d
+R2 d R6 d, R2 u R1 u, R2 l R3 l, R2 r R5 d
+R3 r R2 r, R3 l R4 l, R3 u R1 r, R3 d R6 r
+R4 r R3 r, R4 u R1 d, R4 d R6 u, R4 l R5 u
+R5 l R6 l, R5 u R2 l, R5 r R1 l, R5 d R4 r
+R6 r R5 r, R6 l R3 u, R6 u R2 u, R6 d R4 u
+
+```text
+      R1
+      --
+R4|R3|R2
+      --
+      R6|R5
+```
+
+
+```text
+R1
+--
+R2
+```
+
+* R1, down, R2
+* R2, up, R1
+
+```text
+R3|R2
+```
+* R3, right, R2
+* R2, left, R3
+
+```text
+   R1
+   --
+R3|**
+```
+* R1, left, R3 (down)
+* R3, up, R1 (right)
+
+```text
+R2
+--
+**|R5
+```
+* R2, right, R5 (down)
+* R5, up, R2 (left)
