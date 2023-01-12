@@ -332,3 +332,14 @@ To check if a particular spot (x, y) is vacant at time `t` do the following:
 * if (x+t, y) is left then occupied
 * if (x, y-t) is down then occupied
 * if (x, y+t) is up then occupied
+
+# SNAFU
+-2 -1 0 1 2
+
+To represent
+0 -> 0
+1 -> 1
+2 -> 2
+3 -> Add 1 to higher and =
+4 -> Add 1 to higher and -
+5 -> Add 1 to higher

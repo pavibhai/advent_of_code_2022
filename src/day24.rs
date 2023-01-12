@@ -1,6 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 use std::hash::Hash;
 
+const _WALL: char = '#';
 const UP_WIND: char = '^';
 const DOWN_WIND: char = 'v';
 const LEFT_WIND: char = '<';
@@ -145,7 +146,7 @@ impl Valley {
 
 #[cfg(test)]
 mod tests {
-  use crate::day24::{CLEAR, generator, part1, part2, RIGHT_WIND, WALL, XY};
+  use crate::day24::{CLEAR, generator, part1, part2, RIGHT_WIND, _WALL, XY};
 
   fn input() -> String {
     vec![
@@ -167,7 +168,7 @@ mod tests {
     assert_eq!(XY::new(6, 5), v.end);
 
     assert_eq!(v.space(1, 0), &CLEAR);
-    assert_eq!(v.space(2, 0), &WALL);
+    assert_eq!(v.space(2, 0), &_WALL);
     assert_eq!(v.space(1, 1), &RIGHT_WIND);
   }
 
