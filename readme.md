@@ -325,3 +325,10 @@ R2
 ```
 * R2, right, R5 (down)
 * R5, up, R2 (left)
+
+# Breezy
+To check if a particular spot (x, y) is vacant at time `t` do the following:
+* if (x-t, y) is right then occupied
+* if (x+t, y) is left then occupied
+* if (x, y-t) is down then occupied
+* if (x, y+t) is up then occupied
