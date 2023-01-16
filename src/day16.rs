@@ -194,10 +194,15 @@ impl Puzzle {
       }
       let stack_size = stack.len();
       for i in (0..self.pressure_valves).rev() {
-        if let Some((p, t, e)) = process_entry(prev1, time1, &entry, i, until_time, &self) {
+        // Move the one closest to it
+        let r1 = process_entry(prev1, time1, &entry, i, until_time, &self);
+        let r2 = process_entry(prev2, time2, &entry, i, until_time, &self);
+
+        if r1.is_some() && self.distances[prev1 as usize][i as usize] < self.distances[prev2 as usize][i as usize] {
+          let (p, t, e) = r1.unwrap();
           stack.push(((p, t), (prev2, time2), e));
-        }
-        if let Some((p, t, e)) = process_entry(prev2, time2, &entry, i, until_time, &self) {
+        } else if r2.is_some() {
+          let (p, t, e) = r2.unwrap();
           stack.push(((prev1, time1), (p, t), e));
         }
       }
@@ -264,7 +269,7 @@ impl Entry {
 
   fn max_pressure_ignoring_travel_with_helper(&self, mut time1: u32, mut time2: u32,
                                               until_time: u32, puzzle: &Puzzle) -> u32 {
-    // Now we have two times received as input
+    // Now we have two times received as input, for you and the helper
     let mut p = self.pressure;
     let mut itr = (0..puzzle.pressure_valves).into_iter();
     time1 += 2;
