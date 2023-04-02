@@ -82,6 +82,11 @@ impl Elves {
   }
 
   fn neighbors(&self, elf: &XY) -> u8 {
+    // the bit positions of the neighbors are as given below
+    // 765
+    // 4x3
+    // 210
+    // x is the current item
     let mut result = 0;
     for y in [-1, 0, 1] {
       for x in [-1, 0, 1] {
