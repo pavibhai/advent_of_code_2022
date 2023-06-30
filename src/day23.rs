@@ -119,9 +119,11 @@ impl Elves {
     None
   }
 
-  fn perform_round(&mut self, start: usize) -> bool {
-    let mut elf_next: HashMap<XY, XY> = HashMap::new();
-    let mut ignore = HashSet::new();
+  fn perform_round(&mut self,
+                   start: usize,
+                   elf_next: &mut HashMap<XY, XY>, ignore: &mut HashSet<XY>) -> bool {
+    elf_next.clear();
+    ignore.clear();
 
     for elf in &self.layout {
       match self.propose(elf, start) {
@@ -144,15 +146,17 @@ impl Elves {
     } else {
       for (n, e) in elf_next {
         self.layout.remove(&e);
-        self.layout.insert(n);
+        self.layout.insert(n.clone());
       }
       true
     }
   }
 
   fn perform_rounds(&mut self, rounds: usize) {
+    let mut elf_next = HashMap::new();
+    let mut ignore = HashSet::new();
     for i in 0..rounds {
-      if !self.perform_round(i) {
+      if !self.perform_round(i, &mut elf_next, &mut ignore) {
         break;
       }
     }
@@ -160,7 +164,9 @@ impl Elves {
 
   fn run(&mut self) -> usize {
     let mut round = 0;
-    while self.perform_round(round) {
+    let mut elf_next = HashMap::new();
+    let mut ignore = HashSet::new();
+    while self.perform_round(round, &mut elf_next, &mut ignore) {
       round += 1;
     }
     round + 1
@@ -185,6 +191,7 @@ impl XY {
 
 #[cfg(test)]
 mod tests {
+  use std::collections::{HashMap, HashSet};
   use crate::day23::{generator, XY};
 
   fn input() -> String {
@@ -233,6 +240,8 @@ mod tests {
   #[test]
   fn test_part1() {
     let mut elves = generator(input().as_str());
+    let mut elf_next = HashMap::new();
+    let mut ignore = HashSet::new();
 
     let exp = "....#..\n\
                ..###.#\n\
@@ -243,7 +252,7 @@ mod tests {
                .#..#..\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(0);
+    elves.perform_round(0, &mut elf_next, &mut ignore);
     let exp = ".....#...\n\
                ...#...#.\n\
                .#..#.#..\n\
@@ -255,7 +264,7 @@ mod tests {
                ..#..#...\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(1);
+    elves.perform_round(1, &mut elf_next, &mut ignore);
     let exp = "......#....\n\
                ...#.....#.\n\
                ..#..#.#...\n\
@@ -267,7 +276,7 @@ mod tests {
                ...#..#....\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(2);
+    elves.perform_round(2, &mut elf_next, &mut ignore);
     let exp = "......#....\n\
                ....#....#.\n\
                .#..#...#..\n\
