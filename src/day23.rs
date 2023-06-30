@@ -311,4 +311,51 @@ mod tests {
     let mut elves = generator(input().as_str());
     assert_eq!(20, elves.run());
   }
+
+  #[test]
+  fn test_simple_input() {
+    let input = vec![
+      "##",
+      "#.",
+      "..",
+      "##",
+    ].join("\n");
+    let mut elves = generator(input.as_str());
+    let mut elf_next = HashMap::new();
+    let mut ignore = HashSet::new();
+
+    elves.perform_round(0, &mut elf_next, &mut ignore);
+    let exp = vec![
+      "##",
+      "..",
+      "#.",
+      ".#",
+      "#.",
+      "",
+    ].join("\n");
+    assert_eq!(exp, elves.to_string());
+
+    elves.perform_round(1, &mut elf_next, &mut ignore);
+    let exp = vec![
+      ".##.",
+      "#...",
+      "...#",
+      "....",
+      ".#..",
+      "",
+    ].join("\n");
+    assert_eq!(exp, elves.to_string());
+
+    elves.perform_round(2, &mut elf_next, &mut ignore);
+    let exp = vec![
+      "..#..",
+      "....#",
+      "#....",
+      "....#",
+      ".....",
+      "..#..",
+      "",
+    ].join("\n");
+    assert_eq!(exp, elves.to_string());
+  }
 }
