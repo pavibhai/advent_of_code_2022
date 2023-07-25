@@ -1,12 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
-use std::ops::{RangeInclusive};
+use std::ops::RangeInclusive;
 
 const NORTH: u32 = 0;
 const SOUTH: u32 = 1;
 const WEST: u32 = 2;
 const EAST: u32 = 3;
-const DIRECTIONS: [u32; 4] = [NORTH, SOUTH, WEST, EAST];
+const DIRECTION_COUNT: usize = 4;
 const ELF_CHAR: char = '#';
 const EMPTY_CHAR: char = '.';
 const NORTH_BITS: u8 = 224;
@@ -15,12 +15,12 @@ const WEST_BITS: u8 = 148;
 const EAST_BITS: u8 = 41;
 
 pub fn generator(input: &str) -> Elves {
-  let mut layout: HashSet<XY> = HashSet::new();
+  let mut layout: Vec<XY> = Vec::new();
   let mut y = 0;
   for line in input.lines() {
     for (x, c) in line.chars().enumerate() {
       if c == ELF_CHAR {
-        layout.insert(XY::new(x as i32, y));
+        layout.push(XY::new(x as i32, y));
       }
     }
     y += 1;
@@ -40,7 +40,7 @@ pub fn part2(elves: &Elves) -> usize {
 
 #[derive(Clone)]
 pub struct Elves {
-  layout: HashSet<XY>,
+  layout: Vec<XY>,
 }
 
 impl Display for Elves {
@@ -81,34 +81,29 @@ impl Elves {
     (min_x..=max_x, min_y..=max_y)
   }
 
-  fn neighbors(&self, elf: &XY) -> u8 {
+  fn neighbors(&self, elf: &XY, positions: &HashSet<XY>) -> u8 {
     // the bit positions of the neighbors are as given below
     // 765
     // 4x3
     // 210
     // x is the current item
     let mut result = 0;
-    for y in [-1, 0, 1] {
-      for x in [-1, 0, 1] {
-        if x == 0 && y == 0 {
-          continue;
-        }
-        result <<= 1;
-        if self.layout.contains(&elf.add(x, y)) {
-          result += 1;
-        }
+    for (y, x) in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1,0), (1, 1)] {
+      result <<= 1;
+      if positions.contains(&elf.add(x, y)) {
+        result += 1;
       }
     }
     result
   }
 
-  fn propose(&self, elf: &XY, start: usize) -> Option<XY> {
-    let neighbors = self.neighbors(elf);
+  fn propose(&self, elf: &XY, start: usize, positions: &HashSet<XY>) -> Option<XY> {
+    let neighbors = self.neighbors(elf, positions);
     if neighbors == 0 {
       return None;
     }
-    for i in 0..DIRECTIONS.len() {
-      match ((start + i) % DIRECTIONS.len()) as u32 {
+    for i in 0..DIRECTION_COUNT {
+      match ((start + i) % DIRECTION_COUNT) as u32 {
         NORTH if NORTH_BITS & neighbors == 0 => return Some(elf.add(0, -1)),
         SOUTH if SOUTH_BITS & neighbors == 0 => return Some(elf.add(0, 1)),
         WEST if WEST_BITS & neighbors == 0 => return Some(elf.add(-1, 0)),
@@ -120,43 +115,43 @@ impl Elves {
   }
 
   fn perform_round(&mut self,
-                   start: usize,
-                   elf_next: &mut HashMap<XY, XY>, ignore: &mut HashSet<XY>) -> bool {
-    elf_next.clear();
-    ignore.clear();
+                   start: usize) -> bool {
+    let l = self.layout.len();
+    let mut elf_next = Vec::with_capacity(l);
+    let mut proposals = HashMap::with_capacity(l);
+    let positions: HashSet<XY> = self.layout.clone().into_iter().collect();
 
     for elf in &self.layout {
-      match self.propose(elf, start) {
-        Some(p) if !ignore.contains(&p) && !elf_next.contains_key(&p) => {
-          // record intent as there are no conflicts
-          elf_next.insert(p, elf.clone());
+      let proposal = self.propose(elf, start, &positions);
+      match &proposal {
+        Some(p) => {
+          // Add the proposal
+          proposals.entry(p.clone())
+            .and_modify(|c| *c += 1)
+            .or_insert(1);
         }
-        Some(p) if !ignore.contains(&p) => {
-          // duplicate intent, record in ignore
-          elf_next.remove(&p);
-          ignore.insert(p);
+        _ => {}
+      }
+      elf_next.push(proposal);
+    }
+
+    // Record new positions where possible
+    let mut result = false;
+    for e in self.layout.iter_mut().rev() {
+      match elf_next.pop().unwrap() {
+        Some(p) if proposals.get(&p).unwrap() == &1 => {
+          *e = p;
+          result = true;
         }
         _ => {}
       }
     }
-
-    // Record new positions where possible
-    if elf_next.is_empty() {
-      false
-    } else {
-      for (n, e) in elf_next {
-        self.layout.remove(&e);
-        self.layout.insert(n.clone());
-      }
-      true
-    }
+    result
   }
 
   fn perform_rounds(&mut self, rounds: usize) {
-    let mut elf_next = HashMap::new();
-    let mut ignore = HashSet::new();
     for i in 0..rounds {
-      if !self.perform_round(i, &mut elf_next, &mut ignore) {
+      if !self.perform_round(i) {
         break;
       }
     }
@@ -164,9 +159,7 @@ impl Elves {
 
   fn run(&mut self) -> usize {
     let mut round = 0;
-    let mut elf_next = HashMap::new();
-    let mut ignore = HashSet::new();
-    while self.perform_round(round, &mut elf_next, &mut ignore) {
+    while self.perform_round(round) {
       round += 1;
     }
     round + 1
@@ -191,7 +184,6 @@ impl XY {
 
 #[cfg(test)]
 mod tests {
-  use std::collections::{HashMap, HashSet};
   use crate::day23::{generator, XY};
 
   fn input() -> String {
@@ -231,17 +223,19 @@ mod tests {
   #[test]
   fn test_neighbors() {
     let elves = generator(input().as_str());
-    assert_eq!(elves.neighbors(&XY::new(4, 0)), 2_u8.pow(2) + 2_u8.pow(1));
-    assert_eq!(elves.neighbors(&XY::new(2, 1)), 2_u8.pow(3));
-    assert_eq!(elves.neighbors(&XY::new(3, 4)), 2_u8.pow(4) + 2_u8.pow(1) + 2_u8.pow(3));
-    assert_eq!(elves.neighbors(&XY::new(10, 10)), 0);
+    let positions = &elves.layout.clone().into_iter().collect();
+    assert_eq!(elves.neighbors(&XY::new(4, 0), &positions),
+               2_u8.pow(2) + 2_u8.pow(1));
+    assert_eq!(elves.neighbors(&XY::new(2, 1), &positions),
+               2_u8.pow(3));
+    assert_eq!(elves.neighbors(&XY::new(3, 4), &positions),
+               2_u8.pow(4) + 2_u8.pow(1) + 2_u8.pow(3));
+    assert_eq!(elves.neighbors(&XY::new(10, 10), &positions), 0);
   }
 
   #[test]
   fn test_part1() {
     let mut elves = generator(input().as_str());
-    let mut elf_next = HashMap::new();
-    let mut ignore = HashSet::new();
 
     let exp = "....#..\n\
                ..###.#\n\
@@ -252,7 +246,7 @@ mod tests {
                .#..#..\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(0, &mut elf_next, &mut ignore);
+    elves.perform_round(0);
     let exp = ".....#...\n\
                ...#...#.\n\
                .#..#.#..\n\
@@ -264,7 +258,7 @@ mod tests {
                ..#..#...\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(1, &mut elf_next, &mut ignore);
+    elves.perform_round(1);
     let exp = "......#....\n\
                ...#.....#.\n\
                ..#..#.#...\n\
@@ -276,7 +270,7 @@ mod tests {
                ...#..#....\n";
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(2, &mut elf_next, &mut ignore);
+    elves.perform_round(2);
     let exp = "......#....\n\
                ....#....#.\n\
                .#..#...#..\n\
@@ -321,10 +315,8 @@ mod tests {
       "##",
     ].join("\n");
     let mut elves = generator(input.as_str());
-    let mut elf_next = HashMap::new();
-    let mut ignore = HashSet::new();
 
-    elves.perform_round(0, &mut elf_next, &mut ignore);
+    elves.perform_round(0);
     let exp = vec![
       "##",
       "..",
@@ -335,7 +327,7 @@ mod tests {
     ].join("\n");
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(1, &mut elf_next, &mut ignore);
+    elves.perform_round(1);
     let exp = vec![
       ".##.",
       "#...",
@@ -346,7 +338,7 @@ mod tests {
     ].join("\n");
     assert_eq!(exp, elves.to_string());
 
-    elves.perform_round(2, &mut elf_next, &mut ignore);
+    elves.perform_round(2);
     let exp = vec![
       "..#..",
       "....#",
