@@ -88,10 +88,15 @@ impl Elves {
     // 210
     // x is the current item
     let mut result = 0;
-    for (y, x) in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1,0), (1, 1)] {
-      result <<= 1;
-      if positions.contains(&elf.add(x, y)) {
-        result += 1;
+    for y in [-1, 0, 1] {
+      for x in [-1, 0, 1] {
+        if x == 0 && y == 0 {
+          continue;
+        }
+        result <<= 1;
+        if positions.contains(&elf.add(x, y)) {
+          result += 1;
+        }
       }
     }
     result

@@ -4,8 +4,8 @@ const DECRYPTION_KEY: i64 = 811589153;
 
 pub fn generator(input: &str) -> Vec<i64> {
   input.lines()
-       .map(|l| l.parse().unwrap())
-       .collect()
+    .map(|l| l.parse().unwrap())
+    .collect()
 }
 
 pub fn part1(numbers: &Vec<i64>) -> i64 {
@@ -60,38 +60,34 @@ impl Numbers {
   fn move_steps(&mut self, i: usize) {
     let mut steps = self.numbers[i] % (self.numbers.len() - 1) as i64;
     let mut this = self.links[i].borrow_mut();
-    match steps {
-      _ if steps < 0 => {
-        // Move left
-        let mut left = self.links[this.0].borrow_mut();
-        left.1 = this.1;
-        self.links[this.1].borrow_mut().0 = this.0;
-        while steps < 0 {
-          left = self.links[left.0].borrow_mut();
-          steps += 1;
-        }
-        let mut right = self.links[left.1].borrow_mut();
-        this.0 = right.0;
-        this.1 = left.1;
-        left.1 = i;
-        right.0 = i;
+    if steps < 0 {
+      // Move left
+      let mut left = self.links[this.0].borrow_mut();
+      left.1 = this.1;
+      self.links[this.1].borrow_mut().0 = this.0;
+      for _ in steps..0 {
+        left = self.links[left.0].borrow_mut();
+        steps += 1;
       }
-      _ if steps > 0 => {
-        // Move right
-        let mut right = self.links[this.1].borrow_mut();
-        right.0 = this.0;
-        self.links[this.0].borrow_mut().1 = this.1;
-        while steps > 0 {
-          right = self.links[right.1].borrow_mut();
-          steps -= 1;
-        }
-        let mut left = self.links[right.0].borrow_mut();
-        this.0 = right.0;
-        this.1 = left.1;
-        left.1 = i;
-        right.0 = i;
+      let mut right = self.links[left.1].borrow_mut();
+      this.0 = right.0;
+      this.1 = left.1;
+      left.1 = i;
+      right.0 = i;
+    } else if steps > 0 {
+      // Move right
+      let mut right = self.links[this.1].borrow_mut();
+      right.0 = this.0;
+      self.links[this.0].borrow_mut().1 = this.1;
+      while steps > 0 {
+        right = self.links[right.1].borrow_mut();
+        steps -= 1;
       }
-      _ => {}
+      let mut left = self.links[right.0].borrow_mut();
+      this.0 = right.0;
+      this.1 = left.1;
+      left.1 = i;
+      right.0 = i;
     }
   }
 
@@ -125,8 +121,8 @@ mod tests {
 
   fn to_pairs(input: Vec<i64>) -> Vec<(i64, i64)> {
     let mut result: Vec<(i64, i64)> = input.windows(2)
-                                           .map(|w| (*w.first().unwrap(), *w.last().unwrap()))
-                                           .collect();
+      .map(|w| (*w.first().unwrap(), *w.last().unwrap()))
+      .collect();
     result.push((*input.last().unwrap(), *input.first().unwrap()));
     result.sort();
     result
